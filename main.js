@@ -9,17 +9,21 @@ let btn = document.querySelector(".add");
 let results = document.querySelector(".tasks");
 
 if (localStorage.getItem("tasks")) {
-  tasks = localStorage.getItem("tasks").split(",");
-  tasks.forEach(buildTask);
+  tasks = JSON.parse(localStorage.getItem("tasks"));
+  tasks.forEach(function(item) {
+    buildTask(item.title);
+  });
 }
 
 btn.onclick = function() {
   if (inp.value === "") return;
   buildTask(inp.value);
 
-  tasks.push(inp.value);
-  localStorage.setItem("tasks", tasks);
+  let task = {id: Date.now(), title: inp.value};
+  tasks.push(task);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
   inp.value = "";
+  inp.focus();
 };
 
 function buildTask(title) {
@@ -34,7 +38,13 @@ function buildTask(title) {
   newDiv.append(del);
   del.onclick = function() {
     newDiv.remove();
-    tasks.splice(tasks.indexOf(title), 1);
-    localStorage.setItem("tasks", tasks);
+    // Remove from tasks[]
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].title === title) {
+        tasks.splice(i, 1);
+        break;
+      }
+    }
+    localStorage.setItem("tasks", JSON.stringify(tasks));
   }
 }
